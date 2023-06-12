@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        div.container {
+            background-color: cadetblue;
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: flex-start;
+            align-content: flex-start;
+            height: 600px;
+            gap: 0.5rem;
+        }
+
+        h1.item {
+            background-color: aqua;
+            padding: 0.5rem;
+            order: 1;
+        }
+
+        h1.first {
+            order: 0;
+        }
+
+        h1.third {
+            order: 4;
+        }
+
+        h1.order {
+            order: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Flexbox Introduction</h1>
+
+    <div class="container">
+        <h1 class="item first">Item 1</h1>
+        <h1 class="item">Item 2</h1>
+        <h1 class="item third">Item 3</h1>
+        <h1 class="item">Item 4</h1>
+        <h1 class="item">Item 5</h1>
+        <h1 class="item">Item 6</h1>
+        <h1 class="item">Item 7</h1>
+        <h1 class="item">Item 8</h1>
+        <h1 class="item">Item 9</h1>
+        <h1 class="item">Item 10</h1>
+        <h1 class="item order">Item 11</h1>
+
+    </div>
+</body>
+
+</html>
