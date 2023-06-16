@@ -1,0 +1,1 @@
+console.log("this is es6 running in terminal");
