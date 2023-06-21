@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Input output</h1>
+
+    <form id="userForm">
+        num1: <input type="number" id="num1">
+        <br>
+        num2: <input type="number" id="num2">
+        <br>
+        <button type="submit">Sum</button>
+    </form>
+
+    <h1 id="result"></h1>
+
+    <script type="module">
+
+        let doSum = (event) => {
+            event.preventDefault();
+
+            let num1 = +document.querySelector("#num1").value;
+            let num2 = +document.querySelector("#num2").value;
+
+            let result = num1 + num2;
+
+            document.querySelector("#result").innerHTML = result
+        }
+        document.addEventListener('submit', doSum);
+
+    </script>
+
+</body>
+
+</html>
