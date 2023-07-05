@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>assignments</h1>
+    <script type="module">
+      // Fizz Buzz Game:
+
+      const myFunc = () => {
+        // event.preventDefault();
+        let empArr = [];
+        // let para = document.querySelector("#para");
+        let inpVal = 24;
+        // console.log(inpVal);
+        for (let i = 0; i <= inpVal; i++) {
+          empArr[i] = i;
+          if (empArr[i] % 3 === 0 && empArr[i] % 5 === 0) {
+            empArr[i] = "fizzbuzz";
+          } else if (empArr[i] % 3 === 0) {
+            empArr[i] = "fizz";
+          } else if (empArr[i] % 5 === 0) {
+            empArr[i] = "buzz";
+          }
+             console.log(empArr[i]);
+          //    para.innerHTML += empArr[i];
+        }
+
+        document.querySelector("#head").innerHTML = empArr.join(" ");
+        // console.log(empArr);
+
+        // let app = document.querySelector('#list');
+        // let nodes = empArr.map(lang => {
+        //     let li = document.createElement('li');
+        //     li.textContent = lang;
+        //     return li;
+        // });
+        // app.append(...nodes);
+      };
+
+      console.log(myFunc());
+      //   document.addEventListener("submit", myFunc);
+    </script>
+  </body>
+</html>
