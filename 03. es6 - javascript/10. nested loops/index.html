@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h1>Looping Statements</h1>
+
+    <script type="module">
+      // array
+      const fruits = ["banana", "orange", "kiwi", "strawberry"];
+
+      // for loop
+      for (let i = 0; i < fruits.length; i++) {
+        console.log(fruits[i]);
+      }
+
+      // playing with for loop
+      let i = 0;
+      for (; true; ) {
+        console.log(fruits[i]);
+        i++;
+      }
+
+      // theory of for loop
+      for (initialization; condition; increment / decrement) {
+        // code to be executed
+      }
+
+      // forEach (forEach is arrays method)
+      fruits.forEach(function (item) {
+        console.log(item);
+      });
+
+      // map (map is arrays method)
+      const valueReturnByMap = fruits.map((item) => {
+        console.log(item + " is good");
+        return "df";
+      });
+
+      console.log("valueReturnByMap", valueReturnByMap);
+
+      // do while loop (first executes then runs)
+      do {
+        console.log(i);
+      } while (i < 5);
+
+      const numbers = [1, 2, 3, 4, 5, 6, 7];
+
+      // reduce (reduce is arrays method)
+      const sum = numbers.reduce((prev, current) => {
+        return prev + current;
+      });
+      console.log("sum: ", sum);
+
+      function sum(a, b) {
+        console.log(a + b);
+        return true;
+        console.log("dfdfd"); // return ky baad ka code execute nhi hota
+      }
+      sum(4, 6);
+
+      console.log(sum(2, 5));
+      console.log(sum(2, 5) ? "Prime" : "Composite");
+
+      // new es6 arrow function
+      const sum = (a, b) => a + b; //arrow function returns value by default
+
+      console.log(sum(2, 5));
+
+      // return saruf function ma lagta hy
+      if (true) {
+        ("dfjdfkdjf");
+        return; // Error
+        console.log("dfdfdfdf");
+      }
+
+      // IIFE or self calling function
+      ((a, b) => {
+        console.log(a + b);
+        return true;
+      })(2, 4);
+      sum(); //iski zaroroat nhi hy
+
+      const sum = function add(a, b) {
+        console.log("this", a + b);
+        return a + b;
+      };
+
+      add(); //ye nhi chalta aase
+
+      // nested array
+      const arr2 = [
+        [1, 2, 3],
+        [4, 5, 6, 99],
+        [7, 8],
+      ];
+
+      // nested for loop
+      for (let i = 0; i < arr2.length; i++) {
+        for (let j = 0; j < arr2[i].length; j++) {
+          console.log(arr2[i][j]);
+        }
+      }
+
+      // 
+      const twoSum = (nums, target) => {
+        for (let i = 0; i < nums.length; i++) {
+          console.log(nums[i]);
+        }
+      };
+
+      const nums = [2, 7, 11, 15],
+        target = 9;
+      console.log(twoSum(nums, target));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h1>Looping Statements</h1>
+
+    <script type="module">
+      // array
+      const fruits = ["banana", "orange", "kiwi", "strawberry"];
+
+      // for loop
+      for (let i = 0; i < fruits.length; i++) {
+        console.log(fruits[i]);
+      }
+      // playing with for loop
+      let i = 0;
+      for (; i < fruits.length; ) {
+        console.log(fruits[i]);
+        i++;
+      }
+      // theory of for loop
+      for (initialization; condition; increment / decrement) {
+        // code to be executed
+      }
+
+      // forEach (forEach is arrays method)
+      fruits.forEach(function (item) {
+        console.log(item);
+      });
+
+      // map (map is arrays method)
+      const valueReturnByMap = fruits.map((item) => {
+        console.log(item + " is good");
+        return "df";
+      });
+
+      console.log("valueReturnByMap", valueReturnByMap);
+
+      // do while loop (first executes then runs)
+      do {
+        console.log(i);
+      } while (i < 5);
+
+      const numbers = [1, 2, 3, 4, 5, 6, 7];
+
+      // reduce (reduce is arrays method)
+      const sum = numbers.reduce((prev, current) => {
+        return prev + current;
+      });
+      console.log("sum: ", sum);
+
+      // function
+      function sum(a, b) {
+        console.log(a + b);
+        return true;
+      }
+      console.log(sum(2, 5));
+      console.log(sum(2, 5) ? "Prime" : "Composite");
+
+      // new es6 arrow function
+      const sum = (a, b) => a + b; //arrow function returns value by default
+
+      console.log(sum(2, 5));
+    </script>
+  </body>
+</html>

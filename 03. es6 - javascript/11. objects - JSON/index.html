@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h1>Object Statements</h1>
+
+    <script type="module">
+      const myVar = "testing11";
+
+      // created an javascript object literal
+      const obj = {
+        name: "Shehzad",
+        age: 20,
+        testingVar: myVar,
+        function: (a, b) => a + b,
+        interests: ["english", "math", "computer"],
+        subjects: {
+          // nested object
+          computer: 99,
+          math: 80,
+          english: 60,
+        },
+      };
+
+      const iNeedThisKey = "name";
+
+      console.log("obj", obj.name);
+      console.log("obj", obj["name"]);
+      console.log("obj", obj.iNeedThisKey); // not found
+      console.log("obj", obj[iNeedThisKey]);
+
+      // console.log('arr',obj.subjects[2]); // getting array
+      console.log("arr", obj.subjects[2]);
+
+      obj.name = "dfdf"; // replacing existing items in object
+      obj.something = "dfdf"; // adding new in object
+
+      console.log("obj => ", obj);
+    </script>
+  </body>
+</html>
