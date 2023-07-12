@@ -1,71 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
 
-  <body>
-    <h1>Looping Statements</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
 
-    <script type="module">
-      // array
-      const fruits = ["banana", "orange", "kiwi", "strawberry"];
+<body>
+  <h1>Looping Statements</h1>
 
-      // for loop
-      for (let i = 0; i < fruits.length; i++) {
-        console.log(fruits[i]);
-      }
-      // playing with for loop
-      let i = 0;
-      for (; i < fruits.length; ) {
-        console.log(fruits[i]);
-        i++;
-      }
-      // theory of for loop
-      for (initialization; condition; increment / decrement) {
-        // code to be executed
-      }
+  <script type="module">
+    // // array
+    // const fruits = ["banana", "orange", "kiwi", "strawberry"];
 
-      // forEach (forEach is arrays method)
-      fruits.forEach(function (item) {
-        console.log(item);
-      });
+    // // for loop
+    // for (let i = 0; i < fruits.length; i++) {
+    //   console.log(fruits[i]);
+    // }
+    // // playing with for loop
+    // let i = 0;
+    // for (; i < fruits.length; ) {
+    //   console.log(fruits[i]);
+    //   i++;
+    // }
+    // // theory of for loop
+    // for (initialization; condition; increment / decrement) {
+    //   // code to be executed
+    // }
 
-      // map (map is arrays method)
-      const valueReturnByMap = fruits.map((item) => {
-        console.log(item + " is good");
-        return "df";
-      });
+    // // forEach (forEach is arrays method)
+    // fruits.forEach(function (item) {
+    //   console.log(item);
+    // });
 
-      console.log("valueReturnByMap", valueReturnByMap);
+    // // map (map is arrays method)
+    // const valueReturnByMap = fruits.map((item) => {
+    //   console.log(item + " is good");
+    //   return "df";
+    // });
 
-      // do while loop (first executes then runs)
-      do {
-        console.log(i);
-      } while (i < 5);
+    // console.log("valueReturnByMap", valueReturnByMap);
 
-      const numbers = [1, 2, 3, 4, 5, 6, 7];
+    // // do while loop (first executes then runs)
+    // do {
+    //   console.log(i);
+    // } while (i < 5);
 
-      // reduce (reduce is arrays method)
-      const sum = numbers.reduce((prev, current) => {
-        return prev + current;
-      });
-      console.log("sum: ", sum);
+    // const numbers = [1, 2, 3, 4, 5, 6, 7];
 
-      // function
-      function sum(a, b) {
-        console.log(a + b);
-        return true;
-      }
-      console.log(sum(2, 5));
-      console.log(sum(2, 5) ? "Prime" : "Composite");
+    // // reduce (reduce is arrays method)
+    // const sum = numbers.reduce((prev, current) => {
+    //   return prev + current;
+    // });
+    // console.log("sum: ", sum);
 
-      // new es6 arrow function
-      const sum = (a, b) => a + b; //arrow function returns value by default
+    // // function
+    // function sum(a, b) {
+    //   console.log(a + b);
+    //   return true;
+    // }
+    // console.log(sum(2, 5));
+    // console.log(sum(2, 5) ? "Prime" : "Composite");
 
-      console.log(sum(2, 5));
-    </script>
-  </body>
+    // // new es6 arrow function
+    // const sum = (a, b) => a + b; //arrow function returns value by default
+
+    // console.log(sum(2, 5));
+
+
+    // let a = 5;
+    // let acopy = a;
+    // acopy = 1;
+
+    // console.log("a: ", a);
+    // console.log("acopy: ", acopy);
+
+
+
+    // let arr = [1, 2, 3];
+    // // let copy = arr; // copy by reference
+    // let copy = [...arr]; // cloning
+
+    // copy[2] = "cat";
+
+    // console.log("copy: ", copy);
+    // console.log("arr: ", arr);
+
+
+    let obj1 = {
+      name: "malik",
+      class: "science",
+      age: 30
+    };
+    // let obj2 = obj1; // copy by reference
+    
+    let obj2 = { ...obj1 }; // cloning
+
+    obj2.name = "john"
+
+    console.log("obj1: ", obj1);
+    console.log("obj2: ", obj2);
+
+
+
+
+  </script>
+</body>
+
 </html>

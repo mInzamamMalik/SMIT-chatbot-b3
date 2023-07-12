@@ -1,4 +1,4 @@
-let arr = ["banana", "orange", "kiwi", "strawberry"];
+// let arr = ["banana", "orange", "kiwi", "strawberry"];
 const arr = ["banana", "orange", "kiwi", "strawberry"];
 // array and object both created with let and const can be edited
 

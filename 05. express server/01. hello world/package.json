@@ -5,7 +5,11 @@
   "main":  "server.mjs",
   "scripts": {
     "start": "node server.mjs",
+    "dev": "nodemon server.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "20.x.x"
   },
   "author": "",
   "license": "ISC",
