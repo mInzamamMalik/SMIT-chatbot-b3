@@ -1,0 +1,2 @@
+runtime: nodejs20
+service: "smitabc"
