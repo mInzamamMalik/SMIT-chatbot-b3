@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Async await explained</h1>
+
+    <script>
+
+        let axios = (url, body) => {
+            return new Promise((resolve, reject) => {
+
+                setTimeout(() => {
+                    resolve("response data 123")
+                }, 3000)
+
+                // reject("error code 50023")
+
+            })
+        }
+
+
+
+        let apicall = async () => {
+
+            let a = 5;
+            if (a === 4) {
+                console.log("init");
+            }
+            console.log("first");
+
+            let data = await axios("https://abc.com/api/profile", {})
+            console.log("data: ", data);
+
+            console.log("second");
+        }
+        apicall();
+
+
+
+
+    </script>
+</body>
+
+</html>
