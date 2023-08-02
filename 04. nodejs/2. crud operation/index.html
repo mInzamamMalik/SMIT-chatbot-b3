@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Product CRUD</h1>
+
+    <div id="products">
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="module">
+
+        const getAllProducts = async () => {
+            try {
+
+                const resp = await axios.get("http://localhost:3000/products");
+                console.log("resp: ", resp.data.data);
+
+                let productsDiv = document.querySelector("#products")
+                productsDiv.innerHTML = "";
+
+                resp.data.data.map(eachProduct => {
+                    productsDiv.innerHTML += `<div>
+                        <h2>Name: ${eachProduct.name}</h2>
+                        <p>Price: ${eachProduct.price}</p>
+                        <p>Description: ${eachProduct.description}</p>
+                        <button>Delete</button>
+                        </div>`
+                })
+
+
+            } catch (e) {
+                console.error("Error getting products");
+            }
+        };
+
+        window.addEventListener("load", getAllProducts);
+
+    </script>
+
+</body>
+
+</html>
