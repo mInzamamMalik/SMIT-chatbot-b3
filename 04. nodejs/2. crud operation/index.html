@@ -5,10 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        #products>div {
+            border: 1px solid black;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Product CRUD</h1>
+
+    <form id="addProductForm">
+        name: <input required type="text" id="name">
+        <br>
+        price: <input required type="number" id="price">
+        <br>
+        description: <input required maxlength="200" type="text" id="description">
+        <br>
+        <button type="submit">Add to database</button>
+    </form>
 
     <div id="products">
 
@@ -18,6 +36,31 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script type="module">
+
+
+        document.querySelector("#addProductForm")
+            .addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const name = document.querySelector('#name').value;
+                const price = document.querySelector('#price').value;
+                const description = document.querySelector('#description').value;
+
+                try {
+                    const resp = await axios.post(`http://localhost:3000/product`, {
+                        name: name,
+                        price,
+                        description
+                    });
+                    console.log("resp: ", resp.data);
+                    getAllProducts();
+
+                } catch (e) {
+                    console.error("Error getting products");
+                }
+
+            })
+
 
         const getAllProducts = async () => {
             try {
@@ -29,22 +72,73 @@
                 productsDiv.innerHTML = "";
 
                 resp.data.data.map(eachProduct => {
-                    productsDiv.innerHTML += `<div>
+                    productsDiv.innerHTML += `<div id="box_${eachProduct._id}">
+                        
                         <h2>Name: ${eachProduct.name}</h2>
                         <p>Price: ${eachProduct.price}</p>
                         <p>Description: ${eachProduct.description}</p>
-                        <button>Delete</button>
+                        <button onclick="deleteProduct('${eachProduct._id}') " >Delete</button>
+                        <button onclick='editProduct(${JSON.stringify(eachProduct)})'>Edit</button>
+                        
                         </div>`
                 })
-
-
             } catch (e) {
                 console.error("Error getting products");
             }
         };
-
         window.addEventListener("load", getAllProducts);
 
+
+        window.editProduct = async (product) => {
+
+            console.log("product: ", product);
+
+            let box = document.querySelector(`#box_${product._id}`);
+            box.innerHTML = '';
+
+            box.innerHTML = `<form onsubmit="updateProduct(event, '${product._id}')">
+                name: <input required type="text" id="name_${product._id}" value='${product.name}'>
+                <br>
+                price: <input required type="number" id="price_${product._id}" value='${product.price}'>
+                <br>
+                description: <input required maxlength="200" type="text" id="description_${product._id}" value='${product.description}'>
+                <br>
+                <button type="submit">Update</button>
+                </form>
+                `
+        }
+        window.updateProduct = async (event, id) => {
+            event.preventDefault();
+            console.log("id: ", id);
+
+            const name = document.querySelector(`#name_${id}`).value;
+            const price = document.querySelector(`#price_${id}`).value;
+            const description = document.querySelector(`#description_${id}`).value;
+
+            try {
+                const resp = await axios.put(`http://localhost:3000/product/${id}`, {
+                    name, price, description
+                });
+                console.log("resp: ", resp.data);
+                getAllProducts();
+
+            } catch (e) {
+                console.error("Error getting products");
+            }
+        }
+
+
+        window.deleteProduct = async (id) => {
+            try {
+                console.log("id: ", id);
+                const resp = await axios.delete(`http://localhost:3000/product/${id}`);
+                console.log("resp: ", resp.data);
+                getAllProducts();
+
+            } catch (e) {
+                console.error("Error getting products");
+            }
+        }
     </script>
 
 </body>

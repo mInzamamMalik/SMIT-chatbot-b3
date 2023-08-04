@@ -93,6 +93,7 @@ app.post("/product", async (req, res) => {
     }
 
     const result = await productsCollection.insertOne(doc);
+    console.log("result: ", result);
     res.status(201).send({ message: "created product" });
 
   } catch (error) {
