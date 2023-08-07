@@ -4,6 +4,9 @@ const nanoid = customAlphabet('1234567890', 20)
 import { MongoClient, ObjectId } from "mongodb"
 import morgan from 'morgan';
 import cors from 'cors'
+import path from 'path';
+const __dirname = path.resolve();
+
 
 import './config/index.mjs'
 
@@ -19,9 +22,7 @@ app.use(cors(["http://localhost:3000", "127.0.0.1", "https://ewrer234234.appspot
 
 app.use(morgan('combined'));
 
-app.get("/", (req, res) => {
-  res.send("hello world!");
-});
+
 
 
 app.get("/products", async (req, res) => {
@@ -174,7 +175,17 @@ app.delete("/product/:id", async (req, res) => {
   }
 });
 
+//  baseurl/filename.txt
+app.get(express.static(path.join(__dirname, "public")));
+app.use("/", express.static(path.join(__dirname, "public")));
 
+// /Users/malik/Desktop/_CLASS/SMIT-chatbot-b3/04. nodejs/2. crud operation
+app.use('/static', express.static(path.join(__dirname, 'static')))
+
+
+app.use((req, res) => {
+  res.status(404).send("not found");
+})
 
 
 const port = process.env.PORT || 3000;
