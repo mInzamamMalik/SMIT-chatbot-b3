@@ -1,16 +1,7 @@
-h1 {
-  color: red;
-}
-
-.myList {
-  display: flex;
-  width: 400px;
-  flex-wrap: wrap;
-  list-style: none;
-  padding: 0;
-}
-
-.myList > li {
-  width: 198px;
-  border: 1px solid black;
+.facebookPost {
+  border: 1px solid gray;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 0px 0px 5px gray;
+  border-radius: 15px;
 }
