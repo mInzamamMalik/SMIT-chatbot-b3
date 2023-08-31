@@ -5,9 +5,10 @@ import "./App.css";
 
 function App() {
   const [cityName, setCityName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
 
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
 
   const getWeather = async (event) => {
     event.preventDefault();
@@ -18,13 +19,23 @@ function App() {
     console.log(`getting weather of ${inputRef.current.value}...`);
 
     try {
+      setIsLoading(true);
+
       const response = await axios.get(
         `http://api.weatherapi.com/v1/current.json?key=3ccbbf01ea7148599c1154007220608&q=${inputRef.current.value}&aqi=no`
       );
       console.log("response: ", response.data);
 
-      setData(response.data);
+      setIsLoading(false);
+
+      // setData([response.data, ...data]);
+      setData((prev) => [response.data, ...prev]);
+
+      event.target.reset();
+
+      console.log(data);
     } catch (e) {
+      setIsLoading(false);
       console.log(e);
     }
   };
@@ -57,11 +68,19 @@ function App() {
       <hr />
       <br />
 
-      <div>
-        cityName: {data?.location?.name} {data?.location?.country}
-        <br />
-        temp: {data?.current?.temp_c}
-      </div>
+      {isLoading ? <div>Loading...</div> : null}
+
+      {data.length ? (
+        data.map((eachWeatherData, index) => (
+          <div key={index}>
+            cityName: {eachWeatherData?.location?.name} {eachWeatherData?.location?.country}
+            <br />
+            temp: {eachWeatherData?.current?.temp_c}
+          </div>
+        ))
+      ) : (
+        <div>No data</div>
+      )}
     </div>
   );
 }
