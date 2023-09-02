@@ -1,7 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import logo from "./logo.svg";
 import "./App.css";
+
+import WeatherCard from "./components/WeatherCard";
 
 function App() {
   const [cityName, setCityName] = useState("");
@@ -9,6 +11,28 @@ function App() {
   const inputRef = useRef(null);
 
   const [data, setData] = useState([]);
+  const [currentWeather, setCurrentWeather] = useState(null);
+
+  useEffect(() => {
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        console.log("position: ", position);
+
+        const response = await axios.get(
+          `http://api.weatherapi.com/v1/current.json?key=3ccbbf01ea7148599c1154007220608&q=${position.coords.latitude},${position.coords.longitude}&aqi=no`
+        );
+        console.log("response: ", response.data);
+
+        setCurrentWeather(response.data);
+      });
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+    return ()=>{
+      // socket.close();
+    }
+  },[]);
 
   const getWeather = async (event) => {
     event.preventDefault();
@@ -69,18 +93,15 @@ function App() {
       <br />
 
       {isLoading ? <div>Loading...</div> : null}
+      {data.length || currentWeather ? null : <div>No Data</div>}
 
-      {data.length ? (
-        data.map((eachWeatherData, index) => (
-          <div key={index}>
-            cityName: {eachWeatherData?.location?.name} {eachWeatherData?.location?.country}
-            <br />
-            temp: {eachWeatherData?.current?.temp_c}
-          </div>
-        ))
-      ) : (
-        <div>No data</div>
-      )}
+      {(data.length) ? (
+        
+        data.map((eachWeatherData, index) => <WeatherCard key={index} data={eachWeatherData} />)
+      
+      ) : null}
+
+      { currentWeather && <WeatherCard data={currentWeather} />}
     </div>
   );
 }
