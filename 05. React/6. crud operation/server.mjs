@@ -23,6 +23,14 @@ const database = client.db('ecom');
 const productsCollection = database.collection('products');
 
 
+const pinecone = new PineconeClient();
+await pinecone.init({
+  environment: process.env.PINECONE_ENVIRONMENT,
+  apiKey: process.env.PINECONE_API_KEY,
+});
+
+
+
 const app = express();
 app.use(express.json());
 app.use(cors(["http://localhost:3000", "127.0.0.1", "https://ewrer234234.appspot.app.com"]));
@@ -34,28 +42,85 @@ app.use(morgan('combined'));
 
 app.get("/api/v1/stories", async (req, res) => {
 
-  res.send(
-    [{
-      _id: "dfsafsqwerwqr4534252345",
-      title: "abc story",
-      body: "abc story body abc product",
-      createdOn: "2022-03-20T12:00:00.000Z",
-    }, {
-      _id: "dfsafsqwerwqr4534252345",
-      title: "abc story",
-      body: "abc story body abc product",
-      createdOn: "2022-03-20T12:00:00.000Z",
-    }]
+  const queryText = "retreated"
 
-  )
+
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: queryText,
+  });
+  const vector = response?.data[0]?.embedding
+  console.log("vector: ", vector);
+  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+  const queryResponse = await index.query({
+    queryRequest: {
+      vector: vector,
+      // id: "vec1",
+      topK: 100,
+      includeValues: true,
+      includeMetadata: true,
+      namespace: process.env.PINECONE_NAME_SPACE
+    }
+  });
+
+  queryResponse.matches.map(eachMatch => {
+    console.log(`score ${eachMatch.score.toFixed(1)} => ${JSON.stringify(eachMatch.metadata)}\n\n`);
+  })
+  console.log(`${queryResponse.matches.length} records found `);
+
+  res.send(queryResponse.matches)
 });
 
 app.post("/api/v1/story", async (req, res) => {
 
-  res.send({
-    message: "story created successfully"
-  });
 
+  console.log("req.body: ", req.body);
+  // {
+  //     title: "abc title",
+  //     body: "abc text"
+  // }
+
+  // since pine cone can only store data in vector form (numeric representation of text)
+  // we will have to convert text data into vector of a certain dimension (1536 in case of openai)
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: `${req.body?.title} ${req.body?.body}`,
+  });
+  console.log("response?.data: ", response?.data);
+  const vector = response?.data[0]?.embedding
+  console.log("vector: ", vector);
+  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+
+
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+  const upsertRequest = {
+    vectors: [
+      {
+        id: nanoid(), // unique id, // unique id
+        values: vector,
+        metadata: {
+          title: req.body?.title,
+          body: req.body?.body,
+        }
+      }
+    ],
+    namespace: process.env.PINECONE_NAME_SPACE,
+  };
+  try {
+    const upsertResponse = await index.upsert({ upsertRequest });
+    console.log("upsertResponse: ", upsertResponse);
+
+    res.send({
+      message: "story created successfully"
+    });
+  } catch (e) {
+    console.log("error: ", e)
+    res.status(500).send({
+      message: "failed to create story, please try later"
+    });
+  }
 });
 
 app.put("/api/v1/story/:id", async (req, res) => {

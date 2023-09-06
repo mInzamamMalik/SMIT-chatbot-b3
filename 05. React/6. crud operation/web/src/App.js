@@ -3,6 +3,8 @@ import axios from "axios";
 import logo from "./logo.svg";
 import "./App.css";
 
+const baseUrl = 'http://localhost:5001';
+
 
 function App() {
   const titleInputRef = useRef(null);
@@ -15,7 +17,7 @@ function App() {
   const [currentWeather, setCurrentWeather] = useState(null);
 
   useEffect(() => {
-    if(alert){
+    if (alert) {
       setTimeout(() => {
         setAlert("");
         console.log("time out");
@@ -23,24 +25,32 @@ function App() {
       console.log("effect");
     }
   }, [alert]);
-
-
+  
+  useEffect(() => {
+    getAllStories();
+  }, []);
+  
+  const getAllStories = async () => {
+    const resp = await axios.get(`${baseUrl}/api/v1/stories`)
+    console.log(resp.data);
+  }
+  
   const postStory = async (event) => {
     event.preventDefault();
 
     try {
       setIsLoading(true);
 
-      const response = await axios.post(`/api/v1/story`);
+      const response = await axios.post(`${baseUrl}/api/v1/story`, {
+        title: titleInputRef.current.value,
+        body: bodyInputRef.current.value,
+      });
       console.log("response: ", response.data);
 
       setIsLoading(false);
 
       setAlert(response?.data?.message);
-
       event.target.reset();
-
-      console.log(data);
     } catch (e) {
       setIsLoading(false);
       console.log(e);
@@ -81,7 +91,7 @@ function App() {
       <br />
       <hr />
       <br />
-      
+
 
 
     </div>
