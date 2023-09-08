@@ -42,8 +42,7 @@ app.use(morgan('combined'));
 
 app.get("/api/v1/stories", async (req, res) => {
 
-  const queryText = "retreated"
-
+  const queryText = ""
 
   const response = await openai.embeddings.create({
     model: "text-embedding-ada-002",
@@ -59,7 +58,7 @@ app.get("/api/v1/stories", async (req, res) => {
       vector: vector,
       // id: "vec1",
       topK: 100,
-      includeValues: true,
+      includeValues: false,
       includeMetadata: true,
       namespace: process.env.PINECONE_NAME_SPACE
     }
@@ -75,7 +74,67 @@ app.get("/api/v1/stories", async (req, res) => {
 
 app.post("/api/v1/story", async (req, res) => {
 
+  const startTime = new Date();
 
+  console.log("req.body: ", req.body);
+  // {
+  //     title: "abc title",
+  //     body: "abc text"
+  // }
+
+  // since pine cone can only store data in vector form (numeric representation of text)
+  // we will have to convert text data into vector of a certain dimension (1536 in case of openai)
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: `${req.body?.title} ${req.body?.body}`,
+  });
+  const vector = response?.data[0]?.embedding
+
+  // response time
+  const responseTime = new Date() - startTime;
+  console.log("responseTime: ", responseTime);
+
+  // console.log("vector: ", vector);
+  // console.log("vector: ", vector);
+  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+
+
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+  const upsertRequest = {
+    vectors: [
+      {
+        id: nanoid(), // unique id, // unique id
+        values: vector,
+        metadata: {
+          title: req.body?.title,
+          body: req.body?.body,
+        }
+      }
+    ],
+    namespace: process.env.PINECONE_NAME_SPACE,
+  };
+  try {
+    const upsertResponse = await index.upsert({ upsertRequest });
+    console.log("upsertResponse: ", upsertResponse);
+    // response time
+    const responseTime = new Date() - startTime;
+    console.log("pinecone responseTime: ", responseTime);
+
+    res.send({
+      message: "story created successfully"
+    });
+  } catch (e) {
+    console.log("error: ", e)
+    res.status(500).send({
+      message: "failed to create story, please try later"
+    });
+  }
+});
+
+app.put("/api/v1/story/:id", async (req, res) => {
+
+
+  console.log("req.params.id: ", req.params.id);
   console.log("req.body: ", req.body);
   // {
   //     title: "abc title",
@@ -98,7 +157,7 @@ app.post("/api/v1/story", async (req, res) => {
   const upsertRequest = {
     vectors: [
       {
-        id: nanoid(), // unique id, // unique id
+        id: req.params.id, // unique id, // unique id
         values: vector,
         metadata: {
           title: req.body?.title,
@@ -113,7 +172,7 @@ app.post("/api/v1/story", async (req, res) => {
     console.log("upsertResponse: ", upsertResponse);
 
     res.send({
-      message: "story created successfully"
+      message: "story updated successfully"
     });
   } catch (e) {
     console.log("error: ", e)
@@ -123,76 +182,31 @@ app.post("/api/v1/story", async (req, res) => {
   }
 });
 
-app.put("/api/v1/story/:id", async (req, res) => {
-
-  if (!ObjectId.isValid(req.params.id)) {
-    res.status(403).send({ message: "incorrect product id" });
-    return;
-  }
-
-  if (
-    !req.body.name
-    && !req.body.price
-    && !req.body.description) {
-
-    res.status(403).send(`
-      required parameter missing. 
-      atleast one parameter is required: name, price or description to complete update
-      example JSON request body:
-      {
-        name: "abc product",
-        price: "$23.12",
-        description: "abc product description"
-      }`);
-    return;
-  }
-
-  let product = {}
-
-  // req.body.name && (product.name = req.body.name);
-
-  if (req.body.name) product.name = req.body.name;
-  if (req.body.price) product.price = req.body.price;
-  if (req.body.description) product.description = req.body.description;
-
-  try {
-    const productData = await productsCollection
-      .updateOne(
-        { _id: new ObjectId(req.params.id) },
-        { $set: product }
-      );
-
-    console.log("Product updated: ", productData);
-
-    res.send({
-      message: "product updated successfully"
-    });
-
-  } catch (error) {
-    console.log("error", error);
-    res.status(500).send({ message: "failed to update product, please try later" });
-  }
-
-});
 
 app.delete("/api/v1/story/:id", async (req, res) => {
-  if (!ObjectId.isValid(req.params.id)) {
-    res.status(403).send({ message: "incorrect product id" });
-    return;
-  }
 
   try {
-    const productData = await productsCollection.deleteOne({ _id: new ObjectId(req.params.id) });
-    console.log("Product deleted: ", productData);
+    const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+    const deleteResponse = await index.delete1({
+      ids: [req.params.id],
+      namespace: process.env.PINECONE_NAME_SPACE
+    })
+    // const ns = index.namespace(process.env.PINECONE_NAME_SPACE);
+    // const deleteResponse = await ns.deleteOne(req.params.id);
+
+    console.log("deleteResponse: ", deleteResponse);
 
     res.send({
-      message: "product deleted successfully"
+      message: "story deleted successfully"
     });
 
-  } catch (error) {
-    console.log("error", error);
-    res.status(500).send({ message: "failed to delete product, please try later" });
+  } catch (e) {
+    console.log("error: ", e)
+    res.status(500).send({
+      message: "failed to create story, please try later"
+    });
   }
+
 });
 
 //  baseurl/filename.txt
