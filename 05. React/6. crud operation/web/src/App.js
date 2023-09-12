@@ -9,7 +9,9 @@ const baseUrl = 'http://localhost:5001';
 function App() {
   const titleInputRef = useRef(null);
   const bodyInputRef = useRef(null);
+  const searchInputRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [alert, setAlert] = useState("");
 
@@ -33,6 +35,21 @@ function App() {
     try {
       setIsLoading(true);
       const resp = await axios.get(`${baseUrl}/api/v1/stories`)
+      console.log(resp.data);
+      setData(resp.data);
+
+      setIsLoading(false);
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e);
+    }
+
+  }
+  const searchStories = async (e) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      const resp = await axios.get(`${baseUrl}/api/v1/search?q=${searchInputRef.current.value}`)
       console.log(resp.data);
       setData(resp.data);
 
@@ -133,12 +150,28 @@ function App() {
         <button type="submit">Post</button>
       </form>
 
+
+
       {alert && <div className="alert">{alert}</div>}
       {isLoading && <div className="loading">loading...</div>}
 
       <br />
-      <hr />
       <br />
+      <form onSubmit={searchStories} style={{ textAlign: "right" }}>
+        <input
+          ref={searchInputRef}
+          id="searchInput"
+          type="search"
+          placeholder="Search"
+          onFocus={() => {
+            setIsSearching(true);
+          }}
+          onBlur={() => {
+            setIsSearching(false);
+          }}
+        />
+        <button type="submit" hidden>Search</button>
+      </form>
 
       {
         data.map((eachStory, index) => (

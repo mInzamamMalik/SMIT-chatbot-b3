@@ -72,6 +72,39 @@ app.get("/api/v1/stories", async (req, res) => {
   res.send(queryResponse.matches)
 });
 
+
+app.get("/api/v1/search", async (req, res) => {
+
+  const queryText = req.query.q;
+
+  const response = await openai.embeddings.create({
+    model: "text-embedding-ada-002",
+    input: queryText,
+  });
+  const vector = response?.data[0]?.embedding
+  console.log("vector: ", vector);
+  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+
+  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+  const queryResponse = await index.query({
+    queryRequest: {
+      vector: vector,
+      // id: "vec1",
+      topK: 20,
+      includeValues: false,
+      includeMetadata: true,
+      namespace: process.env.PINECONE_NAME_SPACE
+    }
+  });
+
+  queryResponse.matches.map(eachMatch => {
+    console.log(`score ${eachMatch.score.toFixed(3)} => ${JSON.stringify(eachMatch.metadata)}\n\n`);
+  })
+  console.log(`${queryResponse.matches.length} records found `);
+
+  res.send(queryResponse.matches)
+});
+
 app.post("/api/v1/story", async (req, res) => {
 
   const startTime = new Date();
