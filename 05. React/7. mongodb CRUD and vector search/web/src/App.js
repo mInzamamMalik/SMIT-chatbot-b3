@@ -175,17 +175,17 @@ function App() {
 
       {
         data.map((eachStory, index) => (
-          <div key={eachStory?.id} className="storyCard">
+          <div key={eachStory?._id} className="storyCard">
 
             {
               (eachStory.isEdit) ?
                 (<form onSubmit={(e) => {
-                  updateStory(e, eachStory?.id)
+                  updateStory(e, eachStory?._id)
                 }}>
                   <label htmlFor="titleInput">Title: </label>
                   <br />
                   <input
-                    defaultValue={eachStory?.metadata?.title}
+                    defaultValue={eachStory?.title}
                     name="titleInput"
                     type="text"
                     id="titleInput"
@@ -197,7 +197,7 @@ function App() {
                   <label htmlFor="bodyInput">what is in your mind: </label>
                   <br />
                   <textarea
-                    defaultValue={eachStory?.metadata?.body}
+                    defaultValue={eachStory?.body}
                     name="bodyInput"
                     type="text"
                     id="bodyInput"
@@ -217,10 +217,10 @@ function App() {
 
                 :
                 (<div>
-                  <h3>{eachStory?.metadata?.title}</h3>
-                  <p>{eachStory?.metadata?.body}</p>
+                  <h3>{eachStory?.title}</h3>
+                  <p>{eachStory?.body}</p>
                   <button onClick={() => {
-                    deleteHandler(eachStory?.id)
+                    deleteHandler(eachStory?._id)
                   }}>Delete</button>
                   <button onClick={() => {
 

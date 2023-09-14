@@ -19,8 +19,20 @@ import './config/index.mjs'
 
 const mongodbURI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.9ha3mra.mongodb.net/?retryWrites=true&w=majority`
 const client = new MongoClient(mongodbURI);
-const database = client.db('ecom');
-const productsCollection = database.collection('products');
+const database = client.db('socialstories');
+const postCollection = database.collection('posts');
+
+
+async function run() {
+  try {
+    await client.connect();
+    await client.db("socialstories").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // await client.close();
+  }
+}
+run().catch(console.dir);
 
 
 const pinecone = new PineconeClient();
@@ -42,34 +54,18 @@ app.use(morgan('combined'));
 
 app.get("/api/v1/stories", async (req, res) => {
 
-  const queryText = ""
+  const cursor = postCollection
+    .find({})
+    .sort({ _id: -1 });
 
-  const response = await openai.embeddings.create({
-    model: "text-embedding-ada-002",
-    input: queryText,
-  });
-  const vector = response?.data[0]?.embedding
-  console.log("vector: ", vector);
-  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+  try {
+    const allStories = await cursor.toArray();
+    res.send(allStories);
 
-  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-  const queryResponse = await index.query({
-    queryRequest: {
-      vector: vector,
-      // id: "vec1",
-      topK: 100,
-      includeValues: false,
-      includeMetadata: true,
-      namespace: process.env.PINECONE_NAME_SPACE
-    }
-  });
-
-  queryResponse.matches.map(eachMatch => {
-    console.log(`score ${eachMatch.score.toFixed(1)} => ${JSON.stringify(eachMatch.metadata)}\n\n`);
-  })
-  console.log(`${queryResponse.matches.length} records found `);
-
-  res.send(queryResponse.matches)
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({ message: "failed to get stories, please try later" });
+  }
 });
 
 
@@ -107,137 +103,76 @@ app.get("/api/v1/search", async (req, res) => {
 
 app.post("/api/v1/story", async (req, res) => {
 
-  const startTime = new Date();
-
-  console.log("req.body: ", req.body);
-  // {
-  //     title: "abc title",
-  //     body: "abc text"
-  // }
-
-  // since pine cone can only store data in vector form (numeric representation of text)
-  // we will have to convert text data into vector of a certain dimension (1536 in case of openai)
-  const response = await openai.embeddings.create({
-    model: "text-embedding-ada-002",
-    input: `${req.body?.title} ${req.body?.body}`,
-  });
-  const vector = response?.data[0]?.embedding
-
-  // response time
-  const responseTime = new Date() - startTime;
-  console.log("responseTime: ", responseTime);
-
-  // console.log("vector: ", vector);
-  // console.log("vector: ", vector);
-  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
-
-
-  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-  const upsertRequest = {
-    vectors: [
-      {
-        id: nanoid(), // unique id, // unique id
-        values: vector,
-        metadata: {
-          title: req.body?.title,
-          body: req.body?.body,
-        }
-      }
-    ],
-    namespace: process.env.PINECONE_NAME_SPACE,
-  };
   try {
-    const upsertResponse = await index.upsert({ upsertRequest });
-    console.log("upsertResponse: ", upsertResponse);
-    // response time
-    const responseTime = new Date() - startTime;
-    console.log("pinecone responseTime: ", responseTime);
+    const doc = {
+      title: req?.body?.title,
+      body: req?.body?.body,
+      $currentDate: {
+        createdOn: true
+      },
+    }
 
+    const result = await postCollection.insertOne(doc);
+    console.log("result: ", result);
     res.send({
       message: "story created successfully"
     });
-  } catch (e) {
-    console.log("error: ", e)
-    res.status(500).send({
-      message: "failed to create story, please try later"
-    });
+  } catch (error) {
+    console.log("error: ", error);
+    res.status(500).send({ message: "Failed to add, please try later" })
   }
 });
 
 app.put("/api/v1/story/:id", async (req, res) => {
 
+  if (!ObjectId.isValid(req.params.id)) {
+    res.status(403).send({ message: "incorrect product id" });
+    return;
+  }
 
-  console.log("req.params.id: ", req.params.id);
-  console.log("req.body: ", req.body);
-  // {
-  //     title: "abc title",
-  //     body: "abc text"
-  // }
+  let story = {}
 
-  // since pine cone can only store data in vector form (numeric representation of text)
-  // we will have to convert text data into vector of a certain dimension (1536 in case of openai)
-  const response = await openai.embeddings.create({
-    model: "text-embedding-ada-002",
-    input: `${req.body?.title} ${req.body?.body}`,
-  });
-  console.log("response?.data: ", response?.data);
-  const vector = response?.data[0]?.embedding
-  console.log("vector: ", vector);
-  // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
+  if (req.body.title) story.title = req.body.title;
+  if (req.body.body) story.body = req.body.body;
 
-
-  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-  const upsertRequest = {
-    vectors: [
-      {
-        id: req.params.id, // unique id, // unique id
-        values: vector,
-        metadata: {
-          title: req.body?.title,
-          body: req.body?.body,
-        }
-      }
-    ],
-    namespace: process.env.PINECONE_NAME_SPACE,
-  };
   try {
-    const upsertResponse = await index.upsert({ upsertRequest });
-    console.log("upsertResponse: ", upsertResponse);
+    const updateResponse = await postCollection
+      .updateOne(
+        { _id: new ObjectId(req.params.id) },
+        { $set: story }
+      );
+
+    console.log("Product updated: ", updateResponse);
 
     res.send({
       message: "story updated successfully"
     });
-  } catch (e) {
-    console.log("error: ", e)
-    res.status(500).send({
-      message: "failed to create story, please try later"
-    });
+
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({ message: "failed to update story, please try later" });
   }
 });
 
 
 app.delete("/api/v1/story/:id", async (req, res) => {
 
-  try {
-    const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-    const deleteResponse = await index.delete1({
-      ids: [req.params.id],
-      namespace: process.env.PINECONE_NAME_SPACE
-    })
-    // const ns = index.namespace(process.env.PINECONE_NAME_SPACE);
-    // const deleteResponse = await ns.deleteOne(req.params.id);
+  if (!ObjectId.isValid(req.params.id)) {
+    res.status(403).send({ message: "incorrect product id" });
+    return;
+  }
 
-    console.log("deleteResponse: ", deleteResponse);
+  try {
+    const deleteResponse = await postCollection.deleteOne({ _id: new ObjectId(req.params.id) });
+    console.log("Product deleted: ", deleteResponse);
 
     res.send({
       message: "story deleted successfully"
     });
 
-  } catch (e) {
-    console.log("error: ", e)
-    res.status(500).send({
-      message: "failed to create story, please try later"
-    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({ message: "failed to delete story, please try later" });
   }
 
 });
