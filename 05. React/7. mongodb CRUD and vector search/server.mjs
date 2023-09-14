@@ -17,7 +17,7 @@ const openai = new OpenAI({
 
 import './config/index.mjs'
 
-const mongodbURI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.9ha3mra.mongodb.net/?retryWrites=true&w=majority`
+const mongodbURI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.rmbc6xu.mongodb.net/?retryWrites=true&w=majority`
 const client = new MongoClient(mongodbURI);
 const database = client.db('socialstories');
 const postCollection = database.collection('posts');
@@ -50,13 +50,11 @@ app.use(cors(["http://localhost:3000", "127.0.0.1", "https://ewrer234234.appspot
 app.use(morgan('combined'));
 
 
-
-
 app.get("/api/v1/stories", async (req, res) => {
-
   const cursor = postCollection
     .find({})
-    .sort({ _id: -1 });
+    .sort({ _id: -1 })
+    .project({ plot_embedding: 0 })
 
   try {
     const allStories = await cursor.toArray();
@@ -81,24 +79,31 @@ app.get("/api/v1/search", async (req, res) => {
   console.log("vector: ", vector);
   // [ 0.0023063174, -0.009358601, 0.01578391, ... , 0.01678391, ]
 
-  const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-  const queryResponse = await index.query({
-    queryRequest: {
-      vector: vector,
-      // id: "vec1",
-      topK: 20,
-      includeValues: false,
-      includeMetadata: true,
-      namespace: process.env.PINECONE_NAME_SPACE
+
+  const documents = await postCollection.aggregate([
+    {
+      "$search": {
+        "index": "default",
+        "knnBeta": {
+          "vector": vector,
+          "path": "plot_embedding",
+          "k": 2147483647
+        },
+        "scoreDetails": true
+      }
+    },
+    {
+      "$project": {
+        "plot_embedding": 0,
+        "score": { "$meta": "searchScore" },
+        "scoreDetails": { "$meta": "searchScoreDetails" }
+      },
+
     }
-  });
+  ]).toArray();
 
-  queryResponse.matches.map(eachMatch => {
-    console.log(`score ${eachMatch.score.toFixed(3)} => ${JSON.stringify(eachMatch.metadata)}\n\n`);
-  })
-  console.log(`${queryResponse.matches.length} records found `);
 
-  res.send(queryResponse.matches)
+  res.send(documents)
 });
 
 app.post("/api/v1/story", async (req, res) => {
