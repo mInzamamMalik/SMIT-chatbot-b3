@@ -50,7 +50,14 @@ app.use(cors(["http://localhost:3000", "127.0.0.1", "https://ewrer234234.appspot
 app.use(morgan('combined'));
 
 app.use("/webhook", (req, res, next) => {
-  console.log("req.body", req.body);
+
+  const params = req.body.sessionInfo.parameters;
+
+  const { guestname, numberofguests, roomtype } = params;
+
+  console.log("guest name: ", guestname);
+  console.log("Number of guests: ", numberofguests);
+  console.log("Type of room: ", params.roomtype);
 
   const body = {
     detectIntentResponseId: '4dd48764-d86c-4d2c-a319-26447fa40e95',
@@ -72,6 +79,31 @@ app.use("/webhook", (req, res, next) => {
     text: 'yes',
     languageCode: 'en'
   }
+
+
+  res.send({
+    "fulfillmentResponse": {
+      "messages": [
+        {
+          "responseType": "RESPONSE_TYPE_UNSPECIFIED",
+          "text": {
+            "text": [
+              `Dear ${guestname.original}, your booking of ${roomtype} room for ${numberofguests} person is confirmed. `
+            ],
+            "allowPlaybackInterruption": false
+          }
+        },
+        {
+          "responseType": "RESPONSE_TYPE_UNSPECIFIED",
+          "text": {
+            "text": ["We wish you good stay."],
+            "allowPlaybackInterruption": false
+          }
+        }
+      ],
+      "mergeBehavior": "MERGE_BEHAVIOR_UNSPECIFIED"
+    }
+  })
 })
 
 
